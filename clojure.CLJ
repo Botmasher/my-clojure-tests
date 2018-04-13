@@ -84,4 +84,31 @@
 
 ;; meta - expand metadata (note you must convert fn into var object to avoid passing value)
 (meta (var hello))
-(meta #'hello)			; reader macro for var (#'') works the same way
+(meta #'hello)			; reader macro for var (#') works the same way
+
+;; anonymous fn
+;; fn is first-class object: can pass to fn, return it from fn, bind to var, etc.
+(fn [] (println "Hello world"))
+(def hello-world-fn (fn [] println "Hello world!"))
+(hello-world-fn)
+
+;; #() is shortcut for (fn)
+#(+ 1 1)
+
+;; passed-in args replace %
+#(+ 2 %)
+(let [plus #(+ 2 %)](plus 2))
+
+;; numbered arguments
+(let [plus #(+ 2 %1 %2 %3)](plus 2 2 3))
+
+;; passing fn as arg
+(def say-hello (fn [name] println(str "Hello " name)))
+(def make-me-speak (fn [phrase-fn name] (phrase-fn name)))
+(make-me-speak say-hello "world!")
+
+;; closure: inner fn returned from outer and does things with args from outer fn
+(defn inner [from-outer-arg] (fn [] (println from-outer-arg)))
+(def outer1 (inner "a line printed by inner"))
+(def outer2 (inner "another line printed by inner"))
+;; note that these print different things even when from-outer-arg doesn't change
