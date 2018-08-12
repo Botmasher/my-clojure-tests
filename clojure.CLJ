@@ -37,7 +37,7 @@
 ;;
 ;; from Clojure By Example
 ;; https://kimh.github.io/clojure-by-example/
-;; 
+;;
 
 ;; executed statement enclosed in parens is a Clojure "form"
 (println "Hello, world!") 	; returns nil
@@ -112,3 +112,35 @@
 (def outer1 (inner "a line printed by inner"))
 (def outer2 (inner "another line printed by inner"))
 ;; note that these print different things even when from-outer-arg doesn't change
+
+;; namespaces
+;; create a namespace
+(create-ns 'my.clojure.example)
+;; move between namespaces
+(in-ns 'user)
+my.clojure.example> (defn current-language [] "Clojure")
+my.clojure.example> (current-language)
+my.clojure.example> (in-ns 'user)
+user> (current-language) 	; error resolving symbol
+;; require namespace to provide scope
+user> (require 'my.clojure.example)
+user> (my.clojure.example/current-language)
+user> (require '[my.clojure.example :as mce])
+user> (mce/current-language)
+;; require multiple namespaces
+user> (require '[my.clojure.example :as mce] '[clojure.core :as cljc])
+;; refer a loaded namespace to call methods without namespace prefix
+user> (require 'my.clojure.example)
+user> (refer 'my.clojure.example)
+user> (current-language)
+;; use to load and refer at once
+user> (use 'my.clojure.example)
+user> (current-language)
+;; import a Java namespace
+user> (import java.util.Date)
+user> (new Date)
+;; ns creates namespace and allows passing require, use, import
+user> (ns example.namespace
+	(:require clojure.java.io)
+	(:use clojure.data)
+	(:import [java.util List Set]))
