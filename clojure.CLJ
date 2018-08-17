@@ -144,3 +144,36 @@ user> (ns example.namespace
 	(:require clojure.java.io)
 	(:use clojure.data)
 	(:import [java.util List Set]))
+
+;; control flow
+;; if statements have a predicate, an arg for true (if), an arg for false (else)
+(if true
+	(println "Printed if true, so always printed")
+	(println "Printed if false, so never printed"))
+;; run multiple if branches by passing do
+(if true
+	(do
+	(println "a one")
+	(println "and a two"))) 	; prints a one, a two, nil
+;; if-let expressions to use conditional test result later
+(defn positive-numbers [numbers]
+	(if-let [pos-nums (not-empty (filter pos? numbers))] 	; bind filtered collection to pos-nums
+		pos-nums 										; if not empty print pos-nums
+		"no positive numbers")) 		; else
+(positive-numbers [-2 -1 1 2]) 	; 1 2
+;; filter returns empty sequence which is NOT falsy
+;; so not-empty returned nil for possibility of running else branch
+(filter (pos? [-2 -1])) 						; []
+(boolean (filter pos? [-2 -1])) 		; true
+(not-empty (filter pos? [-2 -1])) 	; nil
+;; when for truthy concerns
+(when true		; like just running the if branch
+	(println "always print this")
+	(println "this, too"))
+(when false 	; nil -
+	(println "never print this")
+	(println "nor this"))
+;; when-let for assigning and using later like if-let
+(when-let [pos-nums (filter pos? [-2 -1 1 2])] 	; never run else branch
+	pos-nums
+	(println "print if positive numbers"))
