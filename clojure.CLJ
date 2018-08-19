@@ -177,3 +177,30 @@ user> (ns example.namespace
 (when-let [pos-nums (filter pos? [-2 -1 1 2])] 	; never run else branch
 	pos-nums
 	(println "print if positive numbers"))
+;; switch case - pass statements, last evaluates like default
+user=> (defn case-test
+	[n]
+	(case n
+		1 "n equals 1"
+		2 "n equals 2"
+		"n is not 1 or 2"))
+#'user/case-test
+(println (case-test 1))
+(println (case-test 3))
+;; cond - write your own tests instead of case tests (which use =)
+(defn cond-test
+	[n]
+	(cond
+		(= n 1) "n equals 1"
+		(and (> n 3) (< n 10)) "n is greater than 3 and less than 10"
+		:else "n is not 1, nor between 3-10 (exclusive)"))
+;; condp - use a predicate for the condition
+(defn condp-test
+	[n]
+	(condp contains? n
+		#{1 2 3} "n is 1, 2 or 3"
+		"n is not 1, 2 or 3"))
+(contains? #{1 2 3} 2) 			; true
+(println (condp-test-2 2)) 	; first branch runs
+(contains? #{1 2 3} 2) 			; falsy
+(println (condp-test-2 5)) 	; default branch runs
