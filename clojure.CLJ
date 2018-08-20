@@ -204,3 +204,49 @@ user=> (defn case-test
 (println (condp-test-2 2)) 	; first branch runs
 (contains? #{1 2 3} 2) 			; falsy
 (println (condp-test-2 5)) 	; default branch runs
+
+;; types
+;; boolean
+;; false and nil are false, all else evaluates to true
+(boolean 0) 		; true
+(boolean nil) 	; false
+;; string
+;; string literal in double quotes
+"my string"
+;; str concatenates (no string interpolation)
+(str "my " "string")
+(+ "my " "string") 			; ClassCastException
+(let [first "Prename"
+	last "Famname"]
+	(str "Hi! I'm " first " " last))
+;; format string (str concatenation can be achieved this way, too)
+;; %s for string
+(format "Hi! I'm %s %s" "Prename" "Familyname")
+;; %i for integer
+(format "How many names? %i names!" 2)
+;; %.Nf for floating point to N places
+(format "What is pi to 5 places? %.5f" 3.1415927)
+(format "What is pi to 2 places? %.2f" 3.1415927)
+;; %b for boolean
+(format "The number 0 is true in Clojure: %b" 0)
+;; integer
+;; add, subtract, multiply, divide
+(+ 2 3)
+(- 2 3)
+(* 2 3)
+(/ 2 3) 		; represented as fraction 2/3!
+;; modulo
+(mod 3 2) 	; 1
+;; max value
+(max 1 2 3 4 5)
+;; min value
+(min 1 2 3 4 5)
+;; exponential operations not predefined
+(defn power
+	[x n]
+	;; reduce takes repeat sequence and reduces multiplying each element
+	(reduce * (repeat n x)))
+)
+;; bigint for very large numbers (N is bigint literal)
+(+ 9223372036854775807 10) 			;; ArithmeticException integer overflow
+(+ (bigint Long/MAX_VALUE) 10)
