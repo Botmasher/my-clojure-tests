@@ -250,3 +250,34 @@ user=> (defn case-test
 ;; bigint for very large numbers (N is bigint literal)
 (+ 9223372036854775807 10) 			;; ArithmeticException integer overflow
 (+ (bigint Long/MAX_VALUE) 10)
+
+;; lists
+;; basic collections - less useful than more used collections like vectors, maps
+'(1 2 3) 	; ' prevents evaluation
+(1 2 3) 	; ClassCastException
+;; conj to add value to front of list
+(conj '(1 2 3) 4) 	; (4 1 2 3)
+;; removing elements not supported by default
+;; seq library ("Sequences") does have remove, filter, drop
+(seq '(-1 1 2 3))
+(filter pos? seq)
+;; read a value by accessing nth index
+(nth '(1 2 3) 1) 	; 2
+;; count length of list
+(count '(1 2 3)) 	; 3
+
+;; vectors
+;; like lists but "more efficient and useful"
+;; vector literal - no need for ' because not evaluated
+[1 2 3]
+;; conj to add values to end
+(conj [1 2 3] 4)
+;; like lists, remove not supported by default - see seq
+;; nth accesses the indexed element
+(nth [1 2 3] 1) 	; 2
+;; first and last access initial and final elements
+(first [1 2 3]) 	; 1
+(last [1 2 3]) 		; 3
+;; .indexOf is a Java interop for getting the index of a value
+;; returns the first index or -1 if element is not in vector
+(.indexOf [1 2 3] 4) 	; -1
