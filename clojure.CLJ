@@ -281,3 +281,28 @@ user=> (defn case-test
 ;; .indexOf is a Java interop for getting the index of a value
 ;; returns the first index or -1 if element is not in vector
 (.indexOf [1 2 3] 4) 	; -1
+
+;; sets
+;; unordered collections of unique values
+;; set literal
+#{1 2 3}
+#{1 2 3 3} 	; IllegalArgumentException Duplicate key: 3
+;; conj to add unique value to a set (not added if exists)
+(conj #{1 2 3} 4)
+(conj (conj #{1 2 3} 4) 4)
+;; disj to remove value from a set
+(disj #{1 2 3} 3) 	; ${3 2}
+(disj #{1 2 3} 5)		; ${1 3 2}
+;; sort to return ordered list of elements in the set
+(sort (conj #{1 2 3} 4)) 	; (1 2 3 4)
+;; contains? to check if set has value
+(contains? #{1 2 3} 3) 	; true
+(contains? ${1 2 3} 4)	; false
+;; clojure.set/subset? to check if set is a subset of another
+(clojure.set/subset? #{1 2} #{1 2 3 4})		; true
+(clojure.set/subset? #{0 4} #{1 2 3 4})		; false
+;; clojure.set/superset? to check if set is a superset of another
+(clojure.set/superset? #{1 2 3 4} #{1 2})	; true
+(clojure.set/superset? #{1 2 3 4} #{0 4})	; false
+
+;; maps
