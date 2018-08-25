@@ -306,3 +306,20 @@ user=> (defn case-test
 (clojure.set/superset? #{1 2 3 4} #{0 4})	; false
 
 ;; maps
+;; kv data structure
+;; map literal {} - most types accepted as keys but commonly string or keyword
+{:fruit "lilikoi" :hapiness "up" :animal "dog"}
+{"fruit" "lilikoi" "happiness" "up" "animal" "dog"}
+;; get value from key or nil if key does not exist
+(get {:fruit "lilikoi" :happiness "up" :animal "dog"} :animal) 	; "dog"
+(get {:fruit "lilikoi" :happiness "up" :animal "dog"} :vehicle) ; nil
+;; keywords can be used like functions to get values
+(:animal {:fruit "lilikoi" :happiness "up" :animal "dog"})
+;; assoc to add a kv pair - existing keys will see value replaced
+(:assoc {:fruit "lilikoi" :happiness "up" :animal "dog"} :vehicle "surfboard")
+;; merge to combine two maps
+(:merge {:fruit "lilikoi" :happiness "up" :animal "dog"} {:vehicle "surfboard" :fruit "rambutan"})
+;; keys to get all keys from map
+(keys {:fruit "banana" :hapiness "wow" :animal "hyena"}) 	; (:fruit :hapiness :animal)
+;; vals to get all values from map
+(keys {:fruit "banana" :hapiness "wow" :animal "hyena"}) 	; ("banana" "wow" "hyena")
