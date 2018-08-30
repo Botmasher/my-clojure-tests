@@ -323,3 +323,61 @@ user=> (defn case-test
 (keys {:fruit "banana" :hapiness "wow" :animal "hyena"}) 	; (:fruit :hapiness :animal)
 ;; vals to get all values from map
 (keys {:fruit "banana" :hapiness "wow" :animal "hyena"}) 	; ("banana" "wow" "hyena")
+
+;; sequences
+;; abstract data types behind lists, vectors, maps, sets
+;; Seq library provides functions that apply to any collection type
+;; "seqable" data types can have these functions applied to them
+(map inc [ 1 2 3 ]) 	; (2 3 4)
+(map inc `( 1 2 3 ))	; (2 3 4)
+(map inc #{ 1 2 3 }) 	; (2 4 3)
+;; note that collection functions may need to be applied to keys/values
+;; inside map, not called on whole map
+(map key {:a 1 :b 2 :c 3}) 	; (:a :b :c)
+;; seq constructs sequence, converting any seqable data type to sequence
+(seq '(1 2 3)) 	; (1 2 3)
+(seq [1 2 3]) 	; (1 2 3)
+(seq #{1 2 3}) 	; (1 3 2)
+(seq {:a 1 :b 2 :c 3}) 	; ([:a 1][:b 2][:c 3])
+;; consider the type of a sequence
+(type (seq [1 2 3])) 	; clojure.lang.PersistentVector$ChunkedSeq
+;; first to get initial element
+(first [1 2 3]) 	; 1
+(first "Hello") 	; \H
+;; rest to get all elements except initial one
+(rest [1 2 3]) 		; (2 3)
+(type [1 2 3])		; starts out as a PersistentVector
+(type (rest [1 2 3])) 	; but returns a PersistentVector$ChunkedSeq
+;; cons to add to head of sequence and return a new one
+(cons 0 '(1 2)) 	; (0 1 2)
+;; concat to combine seqs
+(concat '(1 2 3) '(4 5 6)) 	; (1 2 3 4 5 6)
+;; map to apply function to each element in seq
+(map inc [ 1 2 3 ])
+(map (fn [x] (inc (val x))) {:a 1 :b 2 :c 3}) 	; (2 3 4)
+;; reduce to get single value from seq
+;; requires two-arg function since each time prev value compared to next
+(reduce + [1 2 3 4]) 		; 10
+(reduce inc [1 2 3 4]) 	; ArityException
+(reduce + 2 [1 2 3 4]) 	; starting value instead of using first in seq
+;; into to insert all elements of sequence into another sequence
+(into [1 2 3] `(4 5 6)) ; [1 2 3 4 5 6]
+;; into to convert between seq types
+(into [] `(1 2 3))
+(into {} [[:a 1] [:b 2] [:c 3]])
+;; reverse to reverse seq
+(reverse [1 2 3]) 	; (3 2 1)
+;; iterate to get infinite series - CAUTION will not terminate!
+(iterate + 0)
+;; range to get seq of numbers between two points, optionally passing interval
+(range 1 4) 	; (1 2 3)
+(range 0 6 2) ; (0 2 4)
+;; repeatedly to repeat function
+(repeatedly 5 (fn [] (println "Hello world!")))
+;; doseq to run on each element of seq (compare other languages for / for-each)
+(doseq [dogs ["Fluffstuff" "Waggler" "Floppy" "Gup"]] (println dogs))
+;; doseq supports binding multiple values
+(doseq [a [1 2] b [3 4]] (println (+ a b)))
+;; take to get first n elements
+(take 2 (range 0 4)) 	; (0 1)
+;; take-while to
