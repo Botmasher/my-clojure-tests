@@ -380,4 +380,44 @@ user=> (defn case-test
 (doseq [a [1 2] b [3 4]] (println (+ a b)))
 ;; take to get first n elements
 (take 2 (range 0 4)) 	; (0 1)
-;; take-while to
+;; take-while to get elements until condition met
+;; NOTE not meant for taking elements only matching condition (that's select)
+;; me: I don't see `select` - was `filter` intended here?
+(take while neg? [-3 -2 -1 0 1 2 3]) 	; (-3 -2 -1)
+;; drop to remove first n elements
+(drop 2 (range 0 4)) 	; (2 3)
+;; drop-while to remove elements until condition met
+(drop-while neg? [-3 -2 -1 0 1 2 3]) 	; (0 1 2 3)
+;; filter to take elements matching condition
+;; this guide sees the filter rule as "remov[ing]" those elements, while
+;; I conceive of it as filtering / straining through an operation
+(filter pos? [-1 2 3]) 	; (2 3)
+;; the operation is a predicate and can be your own defined function
+(filter (fn [v] (= v 2)) [-1 2 3]) 	; (2)
+;; remove to remove elements with predicate and return "what's removed"
+(remove pos? [-2 -1 0 1 2]) 	; (-2 -1)
+;; partition-by to split collection based
+(partition-by #(< 3 %) [1 2 3 4 5 6]) 		; ((1 2 3) (4 5 6))
+;; partition-by does not merge repeats of the same value
+(partition-by #(< 3 %) [1 2 3 4 5 6 1 3]) ; ((1 2 3) (4 5 6) (1 3))
+;; group-by to split and merge collection
+;; group-by returns a map with condition return as keys
+(group-by #(< 3 %) [1 2 3 4 5 6 1 3]) 	; {false [1 2 3 1 3], true [4 5 6]}
+;; most seqs are lazy, and `map`, `range`, `reduce` return lazy seqs
+;; `println` can handle lazy seqs, printing one at a time
+;; here `iterate` generates each number when requested and returns to `println`
+(println (iterate inc 1)) 	; count up from 1 - press CTRL + C to stop
+;; lazy behavior allows running `iterate` without crashing
+(println (take 5 (iterate inc 0))) 	; (0 1 2 3 4)
+;; for to use list comprehension NOT for looping
+;; NOTE Clojure has no mutable local vars in loops, so no imperative looping!
+(for [x '(0 1 2)] (+ 10 x)) 	; (10 11 12)
+;; this is looking for the set of all x that matches condition
+(for [x [0 1 2 3 4 5]
+		:let [y (* x 2)] 	; let binds "intermediate values"
+		:when (even? y)] 	; when evaluates body only when predicate is true
+	y) 	;	(0 4 8)
+;; use w(hile to stop evaluation when predicate is false
+(for [x (range 5) :while (not= x 3))]) 	; (0 1 2)
+;; for does depth first nesting so good for combining elements
+(for [x ['a 'b 'c] y [1 2 3] [x y]]) 	; ([a 1] [a 2] [a 3] [b 1] ... [c 3])
