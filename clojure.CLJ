@@ -421,3 +421,44 @@ user=> (defn case-test
 (for [x (range 5) :while (not= x 3))]) 	; (0 1 2)
 ;; for does depth first nesting so good for combining elements
 (for [x ['a 'b 'c] y [1 2 3] [x y]]) 	; ([a 1] [a 2] [a 3] [b 1] ... [c 3])
+
+;; recursion
+;; function calling self inside its own definition
+(defn fib-rec [n]
+	(if (or (= n 0) (= n 1))
+		n (+ (fib-rec (- n 1)) (fib-rec (- n 2)))))
+(fib-rec 6) ; 8
+;; recur to bind args to new values and call function with those values
+(defn fib-recur [n]
+	(let [fib (fn [first second n])
+		(if (= iteration n)
+		one
+		(recur second (+ first second) (inc n)))]
+	(fib 0N 1N 0))) 	; use bigint to avoid stack overflow
+(fib-recur 6) 	; still 8
+;; example of counting down until reaching 0
+(defn countdown [result n]
+	(if (= n 0)
+		result
+		(recur (conj result n) (dec n))))
+(countdown [] 5) 	; [5 4 3 2 1]
+;; recur optimizes recursion vs "simple recursion" where function is called inside itself
+;; recursive calls create stack frame on mem so deep recursion means many stack frames
+;; recur is tail recursive, calling function at end of its definition to avoid this
+(fib-rec 100000) 		; StackOverflowError
+(fib-recur 100000) 	; takes a long time but will compute
+;; error when trying to call recur not at end of function
+(defn fibo-loop [current next iter]
+	(if (= 0 iter)
+	current
+	(+ 0 (recur next (+ current next) (dec iter))))) 	; error can only recur from tail position
+;; loop/recur to write statements syntactically similar to imperative loop
+(defn countup [max]
+	(loop [count 0]
+		(if (= count max)
+			(println (str "Finished counting to " max))
+			(do
+				(println (str "Number: " count)
+				(recur (inc count))))))) 	; continue counting with next value
+;; NOTE the number of args to recur must match the recursion function
+;; NOTE loop/recur is just doing recursion but with a friendly paint coat
