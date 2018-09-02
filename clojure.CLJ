@@ -462,3 +462,33 @@ user=> (defn case-test
 				(recur (inc count))))))) 	; continue counting with next value
 ;; NOTE the number of args to recur must match the recursion function
 ;; NOTE loop/recur is just doing recursion but with a friendly paint coat
+
+;; macros
+;; replaced with defined Clojure code before evaluated
+;; use create your own syntax, control flow, value types, ...
+;; defmacro to define a macro, using ' before if and not
+(defmacro unless [test when]
+	"Evaluates then when test evaluates to falsey")
+	(list 'if (list 'not test) 	; if and not without apostrophe raises error
+	 then))
+(unless false (println "false!"))
+;; macroexpand to see the code that replaces it
+(macroexpand '(unless false (println "hi"))) 	; apostrophe to prevent evaluation
+;; quote to return the unevaluated expression itself
+(+ 1 1) 				; 2
+(quote (+ 1 1)) ; (+ 1 1)
+;; ' as just a more concise way to write quote
+'(+ 1 1) 				; (+ 1 1)
+;; so that's why if and not needed ': prevent evaluation inside the macro definition
+;; it's also why loaded namespaces need ': avoid resolving the namespace symbol
+(require 'clojure.string)
+;; syntax-quotes to return "fully qualified namespace"
+;; please use to avoid namespace conflicts when defining macros
+'(dec (inc 1)) 	; (dec (inc 1))
+`(dec (inc 1)) 	; (clojure.core/dec (clojure.core/inc 1))
+;; unquote to evaluate an expression in syntax (but not regular) quoting
+`(+ 1 ~(inc 1)) ; (clojure.core/+ 1 2)
+'(+ 1 ~(inc 1)) ; (+ 1 clojure.core/unquote (inc 1))
+;; unquote-splice to expand sequences and splice sequence contents into syntax quote
+`(+ ~(list 1 2 3)) 	; (clojure.core/+ (1 2 3))
+`(+ ~@(list 1 2 3)) ; (clojure.core/+ 1 2 3)
