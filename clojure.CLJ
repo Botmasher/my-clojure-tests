@@ -492,3 +492,22 @@ user=> (defn case-test
 ;; unquote-splice to expand sequences and splice sequence contents into syntax quote
 `(+ ~(list 1 2 3)) 	; (clojure.core/+ (1 2 3))
 `(+ ~@(list 1 2 3)) ; (clojure.core/+ 1 2 3)
+
+;; threading macros
+;; macros for nested structres
+;; NOTE nothing to do with parallel computing
+(conj (conj (conj [] 1) 2) 3) 	; join numbers to seq one by one
+;; thread-first macro, starting from initial value then joining each
+(-> []
+	(conj 1)
+	(conj 2)
+	(conj 3))
+;; thread-last macro to pass evaluated forms to the last argument of a previous form
+(->> ["you" "me"]
+	(map clojure.string/upper-case)
+	(map #(str "Hello to " %))) 	; "Hello to YOU Hello to ME"
+;; Thread-last passes the sequence to the first map which capitalizes both
+;; then the second map which runs an anon func (that's the #() syntax) to build
+;; the string.
+;; Here's the equivalent without threading macros.
+(map #(str "Hello to " %) (map clojure.string/upper-case ["you" "me"]))
