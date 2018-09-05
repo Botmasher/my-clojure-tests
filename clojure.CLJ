@@ -511,3 +511,50 @@ user=> (defn case-test
 ;; the string.
 ;; Here's the equivalent without threading macros.
 (map #(str "Hello to " %) (map clojure.string/upper-case ["you" "me"]))
+
+;; delays
+;; delay to defer evaluation
+(def awaited (do [] (+ 1 2)))					; 3
+(def awaited (delay (do [] (+ 1 2)))) ; not done immediately
+;; force to evaluate delayed expression
+(force awaited) 	; 3
+;; could also use anonymous function to print later
+(def awaited (fn [] (+ 1 2)))
+(awaited) 	; 3
+;; but here delay is only evaluated once and cached for future calls
+;; any statements executed (not evaluated cache) will just run once
+(defn awaited (delay (do [] (prn "Summing") (+ 1 1))))
+(force awaited) 	; "Summing" 2
+(force awaited) 	; 2
+;; NOTE second force did not print because prn already executed
+
+;; futures
+;; sync thread to print after set amount of time
+(do (Thread/sleep 3000) (println "Hello world!"))	; Hello world! after 3s
+;; future to run thread after doing immediate work
+(do (future (Thread/sleep 3000) (println "Hi again!")) (println "Hi!"))	; Hi!, wait 3s, Hi again!
+;; deref to get the value from the future call (to "dereference a future")
+(let [future-evaluation (future (inc 1))] (println future-evaluation)) 	; #<core$future_call...>
+(let [future-evaluation (future (inc 1))] (println (deref future-evaluation))) 	; 2
+;; @ is a shorthand for dereferencing a future
+(let [future-evaluation (future (inc 1))] (println @future-evaluation)) ; 2
+@(future (Thread/sleep 3000) "Hi once more!") 	; Hi once more! after 3s
+;; dereferencing a future blocks until the future returns
+;; pass deref a timeout to wait plus value to return if timeout
+(deref (future (Thread/sleep 1000) "future!") 2000 "not waiting") ; future!
+(deref (future (Thread/sleep 3000) "future!") 2000 "not waiting") ; not waiting
+;; combine future and deref to run many tasks in different blocking threads
+(let [sleep-wait
+	(map (fn [time]
+		(future
+			(Thread/sleep time)
+			(println (str time "sec"))))
+			[1000 2000])]
+	(doall (map deref sleep-wait))
+	(println "finished")) 	; 1000 sec, 2000 sec, finished
+;; realized? to check if a future is done
+(def new-future(future (Thread/sleep 5000)))
+(repeatedly 6
+	(fn []
+	(println (realized? new-future))
+	(Thread/sleep 1000))) 	; false, false, false, false, true
