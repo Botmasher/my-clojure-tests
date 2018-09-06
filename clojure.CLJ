@@ -558,3 +558,54 @@ user=> (defn case-test
 	(fn []
 	(println (realized? new-future))
 	(Thread/sleep 1000))) 	; false, false, false, false, true
+
+;; promises
+;; promise to defer evaluation until you have some value in hand
+;; easy to implement using callback - promise, listener, fire callback when value passed to promise
+(def example-promise (promise))
+(def listen-callback (fn []
+	(println "Listening for promise")
+	(future (println "Callback: " @example-promise))))	; NOTE dereferenced promises block just like dereferenced futures
+(defn time-consuming-task []
+	(Thread/sleep 5000)
+	(deliver example-promise "This is the value once dereferenced!"))
+;; start listener and wait for task
+;; NOTE the dereferencing of example-promise blocks for 5 seconds then callback fires
+(listen-callback)(time-consuming-task) 	; Listening for promise, wait 5 sec, This is the value...
+
+;; atoms
+;; atom to point to a value
+;; NOTE atoms as countering common opinion that there's no state in Clojure therefore it's useless in real applications
+(def atom-string (atom "hi!"))
+(def atom-map (:a "a" :b "b"))
+(deref atom-string)	; hi!
+@atom-string 				; hi!
+;; reset! to set an atom value
+;; NOTE this value overwrites the original and is not based on previous value
+;; NOTE atoms are mutable and can be reset infinitely
+@atom-string 	; hi!
+(reset! atom-string "hi, world!")
+@atom-string 	; hi, world!
+;; swap! to to set an atom value with a function
+;; swap! takes current value as an argument, setting state based on previous state
+(def atom-int (atom 0))
+(swap! atom-int
+	(fn [current-val]
+		(inc current-val))) 	; 1
+;; the swap function can take multiple arguments
+(def atom-int (atom 10))
+(defn multiply
+	[current-atom num]
+	(* current-atom num))
+(swap! atom-int multiply 10) ; 100
+;; atoms are threadsafe unlike mutable variables in other languages
+(def x 0)
+(repeatedly 10 (fn [] (def x (inc x))))
+x 	; 10
+;; now do the same but in parallel threads using future
+;; NOTE because of the threads there is no guarantee on the return value of x
+(repeatedly 10 (fn [] (future (def x (inc x))))) 	; sometimes 8, sometimes 5, ...
+;; swap! to guarantee the final value using [compare-and-swap](https://en.wikipedia.org/wiki/Compare-and-swap)
+(def x (atom 0))
+(repeatedly 10 (fn [] (future (swap! x inc))))
+@x 	; 10
