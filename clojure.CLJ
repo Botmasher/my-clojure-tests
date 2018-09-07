@@ -609,3 +609,56 @@ x 	; 10
 (def x (atom 0))
 (repeatedly 10 (fn [] (future (swap! x inc))))
 @x 	; 10
+
+;; refs
+;; ref to manage multiple states consistently
+;; NOTE atom (above) manages changes to single state
+(def example-ref (ref 0))
+@example-ref 	; 0
+;; dosync to start a transactional update to ref
+;; ref-set to change the value
+(dosync
+	(ref-set example-ref 1)
+	(ref-set example-ref 2)) 	; 2
+@example-ref 	; 2
+;; run update inside dosync otherwise no transaction is running to make updates
+(ref-set example-ref 3) 	; IllegalStateException
+;; alter to update a ref using a function
+(def example-ref (ref 0))
+(dosync
+	(alter example-ref
+	(fn [current_value]
+		(inc current_value)))) 	; 1
+@example-ref 	; 1
+;; ref update functions can take multiple args
+(def example-ref (ref 100))
+(defn multiply
+	[current_value n]
+	(* current_value n))
+(dosync
+	(alter example-ref multiply 10)) 	; 1000
+;; Transactions #1: exploring how transactions work from inside dosync
+(def user (ref {}))
+(dosync
+	(alter user merge {:name "Ruff"})
+	(throw (Exception. "it went wrong!!"))
+	(alter user merge {:age 2})) 	; Exception it went wrong!!
+@user 	; {}
+;; NOTE alter didn't update because the dosync must complete successfully
+;; compare this to the way atoms work
+(def user-record (atom {}))
+(do
+	(swap! user-record merge {:name "Ruff"})
+	(throw (Exception. "it went wrong!!"))
+	(swap! user-record merge {:age 2}))
+@user-record 	; {:name "Ruff"}
+;; NOTE the first swap! updated but the error between them left the atom half updated
+;; Transactions #2: exploring how transactions work from outside dosync
+(def my-ref (ref 0))
+(future
+	(dosync
+		(alter my-ref inc)
+		(Thread/sleep 2000))) 	; pending future
+(println @my-ref) 	; 0
+;; wait 2 secs then print to see that the update to ref is now committed
+(println @my-ref) 	; 1
