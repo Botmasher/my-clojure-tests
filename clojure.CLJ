@@ -662,3 +662,22 @@ x 	; 10
 (println @my-ref) 	; 0
 ;; wait 2 secs then print to see that the update to ref is now committed
 (println @my-ref) 	; 1
+
+;; Java
+;; "Java interop" - CLJ code can borrow from Java libraries and execute Java
+(new java.util.Date)
+;; pass constructor arg, use dot form after class name
+(java.util.Date "2018/08/08")
+(java.util.Date.)
+;; bind Java instance like CLJ value
+(let [date (new java.util.Date)]
+	(println date))
+;; example calling Java class methods using Classname/Method
+(Math/pow 3 3) 	; 9
+;; example calling Java instance methods using dot notation
+(let [date (new java.util.Date)]
+	(.toString date)) 	; (. date toString) works, too!
+;; example passing arguments to instance methods
+(let [date-1 (new java.util.Date)
+	date-2 (new java.util.Date)]
+	(.equals date-1 date-2)) 	; true
